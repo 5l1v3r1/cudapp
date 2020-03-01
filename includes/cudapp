@@ -1,0 +1,6 @@
+#pragma once
+#include "source\shared.cuh"
+#include "source\memory.cuh"
+#include "source\work.cuh"
+#include "source\stream.cuh"
+#include "source\atomic.cuh"
