@@ -49,6 +49,20 @@ namespace cuda
 			count = other.count;
 		}
 
+		// Casting from another type of pointer
+		template<typename X>
+		shared_ptr_t( shared_ptr_t<X>& other )
+		{
+			// Increment reference count
+			other.ref_cnt[ 0 ]++;
+
+			// Copy all data
+			ref_cnt = other.ref_cnt;
+			host = ( T* ) other.host;
+			dev = ( T* ) other.dev;
+			count = ( other.count * sizeof( X ) ) / sizeof( T );
+		}
+
 		~shared_ptr_t()
 		{
 			// If reference count reaches 0 free all arrays
