@@ -20,20 +20,19 @@ namespace cuda
 		int* ref_cnt = nullptr;
 		T* host = nullptr;
 		T* dev = nullptr;
-		size_t count = 0;
+		size_t num_bytes = 0;
 
-		shared_ptr_t( size_t count ) : count( count )
+		shared_ptr_t( size_t count ) : num_bytes( count * sizeof( T ) )
 		{
 			// Initialize reference count as 1 and allocate two arrays
 			ref_cnt = new int( 1 );
 
 			// Allocate memory both at host and the device
-			size_t num_bytes = count * sizeof(T);
 			CU_WRAP( cudaMalloc( ( void** ) &dev, num_bytes ) );
 			CU_WRAP( cudaHostAlloc( ( void** ) &host, num_bytes, 0 ) );
 
 			// Call default initializer and update device memory
-			new ( host ) T[ num_bytes / sizeof( T ) ];
+			new ( host ) T[ count ];
 			update_device();
 		}
 
@@ -46,7 +45,7 @@ namespace cuda
 			ref_cnt = other.ref_cnt;
 			host = other.host;
 			dev = other.dev;
-			count = other.count;
+			num_bytes = other.num_bytes;
 		}
 
 		// Casting from another type of pointer
@@ -60,7 +59,7 @@ namespace cuda
 			ref_cnt = other.ref_cnt;
 			host = ( T* ) other.host;
 			dev = ( T* ) other.dev;
-			count = ( other.count * sizeof( X ) ) / sizeof( T );
+			num_bytes = other.num_bytes;
 		}
 
 		~shared_ptr_t()
@@ -83,10 +82,10 @@ namespace cuda
 		T* operator!() { return dev; }
 
 		// Copies all memory from host to device
-		void update_device() { memcpy_h2d( dev, host, count * sizeof( T ) ); }
+		void update_device() { memcpy_h2d( dev, host, num_bytes ); }
 
 		// Copies all memory from device to host
-		void update_host() { memcpy_d2h( host, dev, count * sizeof( T ) ); }
+		void update_host() { memcpy_d2h( host, dev, num_bytes ); }
 
 		// Syntax sugar for update_host() and update_device()
 		void operator>>( target_id m ) { return m == target_id::gpu ? update_device() : update_host(); }
