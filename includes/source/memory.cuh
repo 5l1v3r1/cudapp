@@ -14,7 +14,7 @@ namespace cuda
 	static void memcpy_h2d( void* dst, const void* src, size_t size ) { CU_WRAP( cudaMemcpy( dst, src, size, cudaMemcpyHostToDevice ) ); }
 	static void memcpy_d2h( void* dst, const void* src, size_t size ) { CU_WRAP( cudaMemcpy( dst, src, size, cudaMemcpyDeviceToHost ) ); }
 
-	template<typename T>
+	template<typename T = uint8_t>
 	struct shared_ptr_t
 	{
 		int* ref_cnt = nullptr;
@@ -22,21 +22,24 @@ namespace cuda
 		T* dev = nullptr;
 		size_t num_bytes = 0;
 
-		shared_ptr_t( size_t count ) : num_bytes( count * sizeof( T ) )
+		shared_ptr_t( size_t count = 1 ) : num_bytes( count * sizeof( T ) )
 		{
 			// Initialize reference count as 1 and allocate two arrays
 			ref_cnt = new int( 1 );
 
-			// Allocate memory both at host and the device
-			CU_WRAP( cudaMalloc( ( void** ) &dev, num_bytes ) );
-			CU_WRAP( cudaHostAlloc( ( void** ) &host, num_bytes, 0 ) );
+			if ( count )
+			{
+				// Allocate memory both at host and the device
+				CU_WRAP( cudaMalloc( ( void** ) &dev, num_bytes ) );
+				CU_WRAP( cudaHostAlloc( ( void** ) &host, num_bytes, 0 ) );
 
-			// Call default initializer and update device memory
-			new ( host ) T[ count ];
-			update_device();
+				// Call default initializer and update device memory
+				new ( host ) T[ count ];
+				update_device();
+			}
 		}
 
-		shared_ptr_t( shared_ptr_t& other )
+		shared_ptr_t( const shared_ptr_t& other )
 		{
 			// Increment reference count
 			other.ref_cnt[ 0 ]++;
@@ -50,7 +53,7 @@ namespace cuda
 
 		// Casting from another type of pointer
 		template<typename X>
-		shared_ptr_t( shared_ptr_t<X>& other )
+		shared_ptr_t( const shared_ptr_t<X>& other )
 		{
 			// Increment reference count
 			other.ref_cnt[ 0 ]++;
