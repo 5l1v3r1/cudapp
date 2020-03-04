@@ -4,3 +4,4 @@
 #include "..\work.cuh"
 #include "..\stream.cuh"
 #include "..\atomic.cuh"
+#include "..\random.cuh"

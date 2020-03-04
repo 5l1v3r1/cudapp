@@ -12,10 +12,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="atomic.cuh" />
+    <ClInclude Include="default_config.hpp" />
     <ClInclude Include="includes\cudapp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="memory.cuh" />
+    <ClInclude Include="random.cuh" />
     <ClInclude Include="shared.cuh" />
     <ClInclude Include="stream.cuh" />
     <ClInclude Include="work.cuh" />
@@ -70,6 +72,7 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
+      <AdditionalOptions>--extended-lambda %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

@@ -11,6 +11,8 @@
 #include <cuda.h>
 #include <cuda_runtime_api.h>
 #include <device_launch_parameters.h>
+#include <curand.h>
+#include <curand_kernel.h>
 
 // Makes intellisense not lose it's mind
 #ifdef __INTELLISENSE__
@@ -21,6 +23,7 @@
 // Some other headers we need
 #include <iostream>
 #include <utility>
+#include <exception>
 
 // Directly wrap all CUDA C API that our sub-components use
 namespace cuda
@@ -31,9 +34,8 @@ namespace cuda
 		if ( code != cudaSuccess )
 		{
 			char buffer[ 1024 ];
-			sprintf( buffer, "CUDA reported error '%s' at %s:%d\n", cudaGetErrorString( code ), file, line );
-			fprintf( stderr, buffer );
-			throw buffer;
+			sprintf( buffer, "cuda++: %s [%s:%d]\n", cudaGetErrorString( code ), file, line );
+			throw std::exception( buffer );
 		}
 	}
 	#define CU_WRAP( ... ) cuda::throw_if( (__VA_ARGS__), __FILE__, __LINE__ )

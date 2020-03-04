@@ -35,7 +35,7 @@ namespace cuda
 		template<typename function_t, typename... args_t> 
 		void run( function_t* fn, dim3 grid, dim3 block, args_t&&... args ) 
 		{ 
-			fn<<<grid, block, 0, _v >>>( args... ); CU_WRAP( cudaPeekAtLastError() ); 
+			fn<<<grid, block, 0, _v>>>( args... ); CU_WRAP( cudaPeekAtLastError() ); 
 		}
 
 		// Runs the given lambda
