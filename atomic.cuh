@@ -3,6 +3,9 @@
 
 namespace cuda
 {
+	// Thanks to:
+	// https://github.com/treecode/Bonsai/blob/master/runtime/profiling/derived_atomic_functions.h
+
 	// Floating point atomicity
 	static __device__ __forceinline float atomic_add( float* address, float val )
 	{

@@ -30,3 +30,5 @@
 *.deps
 
 *.idb
+
+cudapp.vcxproj.filters

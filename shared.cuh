@@ -1,4 +1,7 @@
 #pragma once
+// Load the default configuration
+#include "default_config.hpp"
+
 // Makes intellisense recognize CUDA routines
 #ifdef __INTELLISENSE__
 	#define __CUDACC__

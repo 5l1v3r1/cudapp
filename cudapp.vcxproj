@@ -11,14 +11,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="atomic.cuh" />
     <ClInclude Include="includes\cudapp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="includes\source\atomic.cuh" />
-    <ClInclude Include="includes\source\memory.cuh" />
-    <ClInclude Include="includes\source\shared.cuh" />
-    <ClInclude Include="includes\source\stream.cuh" />
-    <ClInclude Include="includes\source\work.cuh" />
+    <ClInclude Include="memory.cuh" />
+    <ClInclude Include="shared.cuh" />
+    <ClInclude Include="stream.cuh" />
+    <ClInclude Include="work.cuh" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="test.cu">

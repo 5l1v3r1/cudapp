@@ -30,9 +30,9 @@ namespace cuda
 			// Try to shift multipliers from grid to blocks WITHOUT adding no-op work
 			size_t xg = work_dims::x, yg = work_dims::y, zg = work_dims::z;
 			size_t xb = 1, yb = 1, zb = 1;
-			while ( zg >= 2 && !( zg & 1 ) && ( xb * yb * zb < cuda::max_threads ) ) zg >>= 1, zb <<= 1;
-			while ( yg >= 2 && !( yg & 1 ) && ( xb * yb * zb < cuda::max_threads ) ) yg >>= 1, yb <<= 1;
-			while ( xg >= 2 && !( xg & 1 ) && ( xb * yb * zb < cuda::max_threads ) ) xg >>= 1, xb <<= 1;
+			while ( zg >= 2 && !( zg & 1 ) && ( xb * yb * zb < CUPP_WORK_BALANCER_MAX_THREADS ) ) zg >>= 1, zb <<= 1;
+			while ( yg >= 2 && !( yg & 1 ) && ( xb * yb * zb < CUPP_WORK_BALANCER_MAX_THREADS ) ) yg >>= 1, yb <<= 1;
+			while ( xg >= 2 && !( xg & 1 ) && ( xb * yb * zb < CUPP_WORK_BALANCER_MAX_THREADS ) ) xg >>= 1, xb <<= 1;
 
 			// Return the values
 			switch ( dimension_index )
@@ -46,7 +46,9 @@ namespace cuda
 		using grid_size = dimt<__helper<true, 0>(), __helper<true, 1>(), __helper<true, 2>()>;
 		using block_size = dimt<__helper<false, 0>(), __helper<false, 1>(), __helper<false, 2>()>;
 
+#if CUPP_WORK_BALANCER_ASSERT_IDEAL != 0
 		static_assert( work_dims::linear::x <= 4096 || block_size::linear::x >= 256, "Non-ideal work distribution." );
+#endif
 	};
 
 	// Thread / Block / Work indexing

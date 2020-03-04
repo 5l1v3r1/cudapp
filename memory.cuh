@@ -15,14 +15,14 @@ namespace cuda
 	static void memcpy_d2h( void* dst, const void* src, size_t size ) { CU_WRAP( cudaMemcpy( dst, src, size, cudaMemcpyDeviceToHost ) ); }
 
 	template<typename T = uint8_t>
-	struct shared_ptr_t
+	struct resource
 	{
 		int* ref_cnt = nullptr;
 		T* host = nullptr;
 		T* dev = nullptr;
 		size_t num_bytes = 0;
 
-		shared_ptr_t( size_t count = 1 ) : num_bytes( count * sizeof( T ) )
+		resource( size_t count = 1 ) : num_bytes( count * sizeof( T ) )
 		{
 			// Initialize reference count as 1 and allocate two arrays
 			ref_cnt = new int( 1 );
@@ -39,7 +39,7 @@ namespace cuda
 			}
 		}
 
-		shared_ptr_t( const shared_ptr_t& other )
+		resource( const resource& other )
 		{
 			// Increment reference count
 			other.ref_cnt[ 0 ]++;
@@ -53,7 +53,7 @@ namespace cuda
 
 		// Casting from another type of pointer
 		template<typename X>
-		shared_ptr_t( const shared_ptr_t<X>& other )
+		resource( const resource<X>& other )
 		{
 			// Increment reference count
 			other.ref_cnt[ 0 ]++;
@@ -65,7 +65,7 @@ namespace cuda
 			num_bytes = other.num_bytes;
 		}
 
-		~shared_ptr_t()
+		~resource()
 		{
 			// If reference count reaches 0 free all arrays
 			if ( --ref_cnt[ 0 ] <= 0 )
@@ -81,7 +81,7 @@ namespace cuda
 		T* operator->() { return host; }
 
 		// Indexing using () will index into dev array and operator! decays the object into a dev pointer
-		__device__ __host__ T& operator()( size_t i ) { return dev[ i ]; }
+		__device__ __host__ T& operator()( size_t i = 0 ) { return dev[ i ]; }
 		T* operator!() { return dev; }
 
 		// Copies all memory from host to device
@@ -94,4 +94,22 @@ namespace cuda
 		void operator>>( target_id m ) { return m == target_id::gpu ? update_device() : update_host(); }
 		void operator<<( target_id m ) { return m == target_id::gpu ? update_host() : update_device(); }
 	};
+
+	template<typename T>
+	static auto make_resource( const T& object )
+	{
+		auto res = resource<T>( 1 );
+		*res.host = object;
+		res >> gpu;
+		return res;
+	}
+
+	template<typename T, size_t N>
+	static auto make_resource( T( &array )[ N ] )
+	{
+		auto res = resource<T>( N );
+		for ( size_t i = 0; i < N; i++ ) res[ i ] = array[ i ];
+		res >> gpu;
+		return res;
+	}
 };
